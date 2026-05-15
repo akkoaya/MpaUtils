@@ -2,9 +2,8 @@
 
 #include <cstdint>
 #include <iostream>
+#include <regex>
 #include <string>
-
-#include <boost/regex.hpp>
 
 #include "MpaUtils/Logger.h"
 
@@ -142,12 +141,12 @@ std::string from_u16(std::wstring_view u16str)
     return output;
 }
 
-std::optional<boost::wregex> regex_valid(const std::wstring& regex)
+std::optional<std::wregex> regex_valid(const std::wstring& regex)
 {
     try {
-        return boost::wregex(regex);
+        return std::wregex(regex);
     }
-    catch (const boost::regex_error& e) {
+    catch (const std::regex_error& e) {
         LogError << e.what() << VAR(regex);
         return std::nullopt;
     }

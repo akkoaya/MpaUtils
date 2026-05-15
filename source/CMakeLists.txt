@@ -12,7 +12,7 @@ target_include_directories(MpaUtils
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(MpaUtils PUBLIC Boost::regex ${OpenCV_LIBS} PRIVATE Boost::system)
+target_link_libraries(MpaUtils PUBLIC Boost::headers ${OpenCV_LIBS})
 
 if(WIN32)
     target_link_libraries(MpaUtils PRIVATE d3d12 dxgi Cfgmgr32)
