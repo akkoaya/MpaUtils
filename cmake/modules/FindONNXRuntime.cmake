@@ -7,9 +7,9 @@ if(WIN32 AND ONNXRuntime_LIBRARY_IMP)
     find_file(ONNXRuntime_LIBRARY NAMES onnxruntime_mpa.dll onnxruntime_maa.dll onnxruntime.dll PATHS "${ONNXRuntime_PATH_LIB}/../bin")
     find_file(ONNXRuntime_LIBRARY_IMP_DEBUG NAMES onnxruntime.lib PATHS "${ONNXRuntime_PATH_LIB}/../debug/lib")
     find_file(ONNXRuntime_LIBRARY_DEBUG NAMES onnxruntime_mpa.dll onnxruntime_maa.dll onnxruntime.dll PATHS "${ONNXRuntime_PATH_LIB}/../debug/bin")
-else ()
+else()
     set(ONNXRuntime_LIBRARY "${ONNXRuntime_LIBRARY_IMP}")
-endif (WIN32)
+endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
@@ -31,7 +31,7 @@ if(ONNXRuntime_FOUND)
                     IMPORTED_IMPLIB_DEBUG "${ONNXRuntime_LIBRARY_IMP_DEBUG}"
                     IMPORTED_LOCATION_DEBUG "${ONNXRuntime_LIBRARY_DEBUG}"
             )
-        endif (WIN32)
+        endif()
         set_target_properties(
             ONNXRuntime::ONNXRuntime
             PROPERTIES
