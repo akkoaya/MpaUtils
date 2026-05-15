@@ -47,7 +47,7 @@ include(${MPAUTILS_DIR}/cmake/version.cmake)
 
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs features2d calib3d)
 find_package(Boost REQUIRED CONFIG)
-find_package(ZLIB REQUIRED)
+find_package(ZLIB REQUIRED CONFIG)
 find_package(fastdeploy_ppocr REQUIRED)
 find_package(ONNXRuntime REQUIRED)
 
