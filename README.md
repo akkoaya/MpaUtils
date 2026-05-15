@@ -4,8 +4,7 @@
 `MpaFrameWork`.
 
 It mirrors the role of `MaaUtils` in `MaaFramework`, but is wired for the
-project-owned `MpaDeps` release-download flow instead of an in-tree `MaaDeps`
-submodule.
+project-owned `MpaDeps` release-download flow.
 
 ## Responsibilities
 
@@ -19,23 +18,24 @@ submodule.
 
 ## Dependency Model
 
-`MpaUtils` does not vendor `MpaDeps` as a submodule.
+`MpaUtils` is expected to be consumed from `https://github.com/akkoaya/MpaUtils`
+as the `source/MpaUtils` submodule in `MpaFrameWork`.
 
 Expected layout when consumed from `MpaFrameWork`:
 
 ```text
 MpaFrameWork/
-├── MpaDeps/
-│   └── mpadeps.cmake
-└── source/
-    └── MpaUtils/
-        └── MpaUtils.cmake
+`-- source/
+    `-- MpaUtils/
+        |-- MpaDeps/
+        |   `-- mpadeps.cmake
+        `-- MpaUtils.cmake
 ```
 
-Bootstrap `MpaDeps` from the main repository root with:
+Bootstrap `MpaDeps` into the `MpaUtils` checkout with:
 
 ```powershell
-python tools/mpadeps-download.py --repo <owner/repo> --version <tag>
+python tools/mpadeps-download.py --repo akkoaya/MpaDeps --version <tag>
 ```
 
 For local release-asset validation:
@@ -44,7 +44,9 @@ For local release-asset validation:
 python tools/mpadeps-download.py --from-dir ..\MpaDeps\tarball
 ```
 
+The example above assumes `MpaUtils` and `MpaDeps` are sibling checkouts.
+
 ## Local Helper
 
-`tools/mpadeps-download.py` in this repository is a thin wrapper that forwards
-to the shared bootstrap helper in the adjacent `MpaFrameWork` checkout.
+`tools/mpadeps-download.py` in this repository is a standalone bootstrap
+helper. By default it extracts release assets into `MpaUtils/MpaDeps`.

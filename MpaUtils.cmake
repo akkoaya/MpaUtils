@@ -23,17 +23,17 @@ if(DEFINED MPADEPS_DIR AND NOT "${MPADEPS_DIR}" STREQUAL "" AND NOT MPADEPS_DIR 
     get_filename_component(MPADEPS_DIR "${MPADEPS_DIR}" ABSOLUTE)
 elseif(DEFINED ENV{MPADEPS_DIR} AND NOT "$ENV{MPADEPS_DIR}" STREQUAL "")
     get_filename_component(MPADEPS_DIR "$ENV{MPADEPS_DIR}" ABSOLUTE)
-elseif(EXISTS "${CMAKE_SOURCE_DIR}/MpaDeps/mpadeps.cmake")
-    get_filename_component(MPADEPS_DIR "${CMAKE_SOURCE_DIR}/MpaDeps" ABSOLUTE)
 elseif(EXISTS "${MPAUTILS_DIR}/MpaDeps/mpadeps.cmake")
     get_filename_component(MPADEPS_DIR "${MPAUTILS_DIR}/MpaDeps" ABSOLUTE)
+elseif(EXISTS "${CMAKE_SOURCE_DIR}/MpaDeps/mpadeps.cmake")
+    get_filename_component(MPADEPS_DIR "${CMAKE_SOURCE_DIR}/MpaDeps" ABSOLUTE)
 endif()
 
 if(NOT MPADEPS_DIR OR NOT EXISTS "${MPADEPS_DIR}/mpadeps.cmake")
     message(FATAL_ERROR
         "Project-owned MpaDeps was not found.\n"
-        "Expected ${CMAKE_SOURCE_DIR}/MpaDeps or set MPADEPS_DIR explicitly.\n"
-        "When developing inside MpaFrameWork, bootstrap it with tools/mpadeps-download.py first."
+        "Expected ${MPAUTILS_DIR}/MpaDeps, ${CMAKE_SOURCE_DIR}/MpaDeps, or set MPADEPS_DIR explicitly.\n"
+        "Bootstrap it with the local tools/mpadeps-download.py helper first."
     )
 endif()
 
@@ -45,8 +45,8 @@ include(${MPAUTILS_DIR}/cmake/config.cmake)
 include(${MPAUTILS_DIR}/cmake/utils.cmake)
 include(${MPAUTILS_DIR}/cmake/version.cmake)
 
-find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs features2d calib3d)
-find_package(Boost REQUIRED CONFIG)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
+find_package(Boost REQUIRED CONFIG COMPONENTS system regex)
 find_package(ZLIB REQUIRED CONFIG)
 find_package(fastdeploy_ppocr REQUIRED)
 find_package(ONNXRuntime REQUIRED)

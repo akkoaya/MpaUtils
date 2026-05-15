@@ -45,9 +45,9 @@ private:
     std::filesystem::path exec_;
     std::vector<os_string> args_;
 
-    boost::process::ipstream pin_;
-    boost::process::opstream pout_;
-    boost::process::child child_;
+    boost::process::v1::ipstream pin_;
+    boost::process::v1::opstream pout_;
+    boost::process::v1::child child_;
 
     std::unique_ptr<char[]> buffer_ = nullptr;
 };
