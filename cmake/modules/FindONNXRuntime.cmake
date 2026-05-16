@@ -6,6 +6,28 @@ if(DEFINED MPADEPS_DIR AND NOT "${MPADEPS_DIR}" STREQUAL "")
     )
 endif()
 
+foreach(_ONNXRUNTIME_CACHE_VAR IN ITEMS
+    ONNXRuntime_INCLUDE_DIR
+    ONNXRuntime_LIBRARY_IMP
+    ONNXRuntime_LIBRARY
+    ONNXRuntime_LIBRARY_IMP_DEBUG
+    ONNXRuntime_LIBRARY_DEBUG
+)
+    if(
+        DEFINED ${_ONNXRUNTIME_CACHE_VAR}
+        AND NOT "${${_ONNXRUNTIME_CACHE_VAR}}" STREQUAL ""
+        AND NOT "${${_ONNXRUNTIME_CACHE_VAR}}" MATCHES "-NOTFOUND$"
+        AND NOT EXISTS "${${_ONNXRUNTIME_CACHE_VAR}}"
+    )
+        message(STATUS
+            "Ignoring stale ${_ONNXRUNTIME_CACHE_VAR}: ${${_ONNXRUNTIME_CACHE_VAR}}"
+        )
+        unset(${_ONNXRUNTIME_CACHE_VAR} CACHE)
+        unset(${_ONNXRUNTIME_CACHE_VAR})
+    endif()
+endforeach()
+unset(_ONNXRUNTIME_CACHE_VAR)
+
 find_path(
     ONNXRuntime_INCLUDE_DIR
     NAMES onnxruntime/onnxruntime_c_api.h onnxruntime_c_api.h
