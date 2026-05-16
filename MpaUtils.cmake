@@ -19,15 +19,38 @@ list(APPEND CMAKE_MODULE_PATH "${MPAUTILS_DIR}/cmake/modules")
 
 set(MPADEPS_DIR "" CACHE PATH "Path to the project-owned MpaDeps dependency root")
 
+set(_MPADEPS_CANDIDATE "")
 if(DEFINED MPADEPS_DIR AND NOT "${MPADEPS_DIR}" STREQUAL "" AND NOT MPADEPS_DIR MATCHES "-NOTFOUND$")
-    get_filename_component(MPADEPS_DIR "${MPADEPS_DIR}" ABSOLUTE)
+    get_filename_component(_MPADEPS_CANDIDATE "${MPADEPS_DIR}" ABSOLUTE)
+    if(EXISTS "${_MPADEPS_CANDIDATE}/mpadeps.cmake")
+        set(MPADEPS_DIR "${_MPADEPS_CANDIDATE}")
+    else()
+        message(WARNING
+            "Ignoring stale MPADEPS_DIR cache entry: ${_MPADEPS_CANDIDATE}. "
+            "Falling back to repository-local detection."
+        )
+        set(MPADEPS_DIR "")
+    endif()
 elseif(DEFINED ENV{MPADEPS_DIR} AND NOT "$ENV{MPADEPS_DIR}" STREQUAL "")
-    get_filename_component(MPADEPS_DIR "$ENV{MPADEPS_DIR}" ABSOLUTE)
-elseif(EXISTS "${MPAUTILS_DIR}/MpaDeps/mpadeps.cmake")
+    get_filename_component(_MPADEPS_CANDIDATE "$ENV{MPADEPS_DIR}" ABSOLUTE)
+    if(EXISTS "${_MPADEPS_CANDIDATE}/mpadeps.cmake")
+        set(MPADEPS_DIR "${_MPADEPS_CANDIDATE}")
+    else()
+        message(WARNING
+            "Ignoring stale ENV{MPADEPS_DIR}: ${_MPADEPS_CANDIDATE}. "
+            "Falling back to repository-local detection."
+        )
+        set(MPADEPS_DIR "")
+    endif()
+endif()
+
+if(NOT MPADEPS_DIR AND EXISTS "${MPAUTILS_DIR}/MpaDeps/mpadeps.cmake")
     get_filename_component(MPADEPS_DIR "${MPAUTILS_DIR}/MpaDeps" ABSOLUTE)
-elseif(EXISTS "${CMAKE_SOURCE_DIR}/MpaDeps/mpadeps.cmake")
+elseif(NOT MPADEPS_DIR AND EXISTS "${CMAKE_SOURCE_DIR}/MpaDeps/mpadeps.cmake")
     get_filename_component(MPADEPS_DIR "${CMAKE_SOURCE_DIR}/MpaDeps" ABSOLUTE)
 endif()
+
+unset(_MPADEPS_CANDIDATE)
 
 if(NOT MPADEPS_DIR OR NOT EXISTS "${MPADEPS_DIR}/mpadeps.cmake")
     message(FATAL_ERROR

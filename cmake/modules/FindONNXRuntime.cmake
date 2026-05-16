@@ -1,12 +1,47 @@
-find_path(ONNXRuntime_INCLUDE_DIR NAMES onnxruntime/onnxruntime_c_api.h)
+set(_ONNXRUNTIME_HINTS "")
+if(DEFINED MPADEPS_DIR AND NOT "${MPADEPS_DIR}" STREQUAL "")
+    list(APPEND _ONNXRUNTIME_HINTS
+        "${MPADEPS_DIR}/vcpkg/installed/${MPADEPS_TRIPLET}"
+        "${MPADEPS_DIR}/vcpkg/installed/${MPADEPS_TRIPLET}/include/onnxruntime"
+    )
+endif()
 
-find_library(ONNXRuntime_LIBRARY_IMP NAMES onnxruntime)
+find_path(
+    ONNXRuntime_INCLUDE_DIR
+    NAMES onnxruntime/onnxruntime_c_api.h onnxruntime_c_api.h
+    HINTS ${_ONNXRUNTIME_HINTS}
+    PATH_SUFFIXES include include/onnxruntime
+    NO_CACHE
+)
+
+find_library(
+    ONNXRuntime_LIBRARY_IMP
+    NAMES onnxruntime
+    HINTS ${_ONNXRUNTIME_HINTS}
+    PATH_SUFFIXES lib debug/lib
+    NO_CACHE
+)
 
 if(WIN32 AND ONNXRuntime_LIBRARY_IMP)
     get_filename_component(ONNXRuntime_PATH_LIB "${ONNXRuntime_LIBRARY_IMP}" DIRECTORY)
-    find_file(ONNXRuntime_LIBRARY NAMES onnxruntime_mpa.dll onnxruntime_maa.dll onnxruntime.dll PATHS "${ONNXRuntime_PATH_LIB}/../bin")
-    find_file(ONNXRuntime_LIBRARY_IMP_DEBUG NAMES onnxruntime.lib PATHS "${ONNXRuntime_PATH_LIB}/../debug/lib")
-    find_file(ONNXRuntime_LIBRARY_DEBUG NAMES onnxruntime_mpa.dll onnxruntime_maa.dll onnxruntime.dll PATHS "${ONNXRuntime_PATH_LIB}/../debug/bin")
+    find_file(
+        ONNXRuntime_LIBRARY
+        NAMES onnxruntime_mpa.dll onnxruntime_maa.dll onnxruntime.dll
+        PATHS "${ONNXRuntime_PATH_LIB}/../bin"
+        NO_CACHE
+    )
+    find_file(
+        ONNXRuntime_LIBRARY_IMP_DEBUG
+        NAMES onnxruntime.lib
+        PATHS "${ONNXRuntime_PATH_LIB}/../debug/lib"
+        NO_CACHE
+    )
+    find_file(
+        ONNXRuntime_LIBRARY_DEBUG
+        NAMES onnxruntime_mpa.dll onnxruntime_maa.dll onnxruntime.dll
+        PATHS "${ONNXRuntime_PATH_LIB}/../debug/bin"
+        NO_CACHE
+    )
 else()
     set(ONNXRuntime_LIBRARY "${ONNXRuntime_LIBRARY_IMP}")
 endif()
@@ -40,3 +75,5 @@ if(ONNXRuntime_FOUND)
         )
     endif()
 endif()
+
+unset(_ONNXRUNTIME_HINTS)
