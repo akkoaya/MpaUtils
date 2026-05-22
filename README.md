@@ -35,8 +35,11 @@ MpaFrameWork/
 Bootstrap `MpaDeps` into the `MpaUtils` checkout with:
 
 ```powershell
-python tools/mpadeps-download.py --repo akkoaya/MpaDeps --version <tag>
+python tools/mpadeps-download.py --repo akkoaya/MpaDeps
 ```
+
+The helper resolves the latest published `MpaDeps` release by default. Pass
+`--version <tag>` when a reproducible dependency snapshot is required.
 
 For local release-asset validation:
 

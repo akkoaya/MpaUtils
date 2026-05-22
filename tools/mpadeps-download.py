@@ -157,6 +157,19 @@ def extract_archives(dest_dir: Path, archives: list[Path]) -> None:
         shutil.unpack_archive(str(archive), str(dest_dir))
 
 
+def query_release(repo: str, version: str, token: str | None) -> dict:
+    version = version.strip()
+    if version and version.lower() != "latest":
+        url = f"https://api.github.com/repos/{repo}/releases/tags/{version}"
+    else:
+        url = f"https://api.github.com/repos/{repo}/releases/latest"
+
+    req = urllib.request.Request(url)
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+    return json.loads(retry_urlopen(req))
+
+
 def download_release_assets(
     repo: str,
     version: str,
@@ -164,12 +177,9 @@ def download_release_assets(
     dest_dir: Path,
     token: str | None,
 ) -> None:
-    req = urllib.request.Request(
-        f"https://api.github.com/repos/{repo}/releases/tags/{version}"
-    )
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
-    release = json.loads(retry_urlopen(req))
+    release = query_release(repo, version, token)
+    release_tag = release.get("tag_name", version or "latest")
+    print(f"resolved MpaDeps release {repo}@{release_tag}")
 
     expected = set(asset_names(triplet))
     assets = {}
@@ -218,7 +228,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         default=os.environ.get("MPADEPS_VERSION", ""),
-        help="Published standalone MpaDeps release tag.",
+        help=(
+            "Published standalone MpaDeps release tag. "
+            "Defaults to the repository's latest release. "
+            "Set to 'latest' explicitly to force latest release resolution."
+        ),
     )
     parser.add_argument("--dest", default=str(DEFAULT_DEST))
     parser.add_argument(
@@ -242,10 +256,10 @@ def main(argv: list[str]) -> int:
         print(f"MpaDeps extracted to {dest_dir}")
         return 0
 
-    if not args.repo or not args.version:
+    if not args.repo:
         parser.error(
-            "--repo and --version are required unless --from-dir is given. "
-            "Set MPADEPS_REPO/MPADEPS_VERSION or pass published release metadata explicitly."
+            "--repo is required unless --from-dir is given. "
+            "Set MPADEPS_REPO or pass published release metadata explicitly."
         )
 
     token = os.environ.get("GH_TOKEN", os.environ.get("GITHUB_TOKEN", None))
