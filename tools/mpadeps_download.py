@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import os
 import shutil
 import sys
@@ -135,6 +134,11 @@ def asset_names(triplet: str) -> tuple[str, str]:
     )
 
 
+def release_asset_urls(repo: str, version: str, triplet: str) -> list[tuple[str, str]]:
+    base = f"https://github.com/{repo}/releases/download/{version}"
+    return [(name, f"{base}/{name}") for name in asset_names(triplet)]
+
+
 def find_local_archives(archive_dir: Path, triplet: str) -> list[Path]:
     devel_name, runtime_name = asset_names(triplet)
     devel = archive_dir / devel_name
@@ -158,44 +162,15 @@ def extract_archives(dest_dir: Path, archives: list[Path]) -> None:
         shutil.unpack_archive(str(archive), str(dest_dir))
 
 
-def download_release_assets(
-    repo: str,
-    version: str,
-    triplet: str,
-    dest_dir: Path,
-    token: str | None,
-) -> None:
-    req = urllib.request.Request(
-        f"https://api.github.com/repos/{repo}/releases/tags/{version}"
-    )
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
-    release = json.loads(retry_urlopen(req))
-
-    expected = set(asset_names(triplet))
-    assets = {}
-    for asset in release["assets"]:
-        name = asset["name"]
-        if name in expected:
-            assets[name] = asset
-
-    missing = [name for name in expected if name not in assets]
-    if missing:
-        raise RuntimeError(
-            f"release {repo}@{version} does not contain required assets for {triplet}: "
-            + ", ".join(missing)
-        )
-
+def download_release_assets(repo: str, version: str, triplet: str, dest_dir: Path) -> None:
     clear_destination(dest_dir)
     cache_dir = dest_dir / "tarball"
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    for name in asset_names(triplet):
-        asset = assets[name]
-        url = asset["browser_download_url"]
+    for name, url in release_asset_urls(repo, version, triplet):
         local_path = cache_dir / sanitize_filename(name)
-        if local_digest_matches(local_path, asset.get("digest", "")):
-            print("reusing matched digest", name)
+        if local_path.exists():
+            print("reusing cached asset", name)
         else:
             print("downloading", url)
             urllib.request.urlretrieve(url, local_path, reporthook=ProgressHook())
@@ -249,15 +224,13 @@ def main(argv: list[str]) -> int:
             "Set MPADEPS_REPO/MPADEPS_VERSION or pass published release metadata explicitly."
         )
 
-    token = os.environ.get("GH_TOKEN", os.environ.get("GITHUB_TOKEN", None))
-    download_release_assets(args.repo, args.version, triplet, dest_dir, token)
+    download_release_assets(args.repo, args.version, triplet, dest_dir)
     print(f"MpaDeps extracted to {dest_dir}")
     return 0
 
 
 def download_main(triplet: str, repo: str, version: str) -> int:
-    token = os.environ.get("GH_TOKEN", os.environ.get("GITHUB_TOKEN", None))
-    download_release_assets(repo, version, triplet, DEFAULT_DEST, token)
+    download_release_assets(repo, version, triplet, DEFAULT_DEST)
     print(f"MpaDeps extracted to {DEFAULT_DEST}")
     return 0
 
