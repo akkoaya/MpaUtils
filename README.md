@@ -35,21 +35,22 @@ MpaFrameWork/
 Bootstrap `MpaDeps` into the `MpaUtils` checkout with:
 
 ```powershell
-python tools/mpadeps-download.py --repo akkoaya/MpaDeps
+python tools/mpadeps-download.py
 ```
 
-The helper resolves the latest published `MpaDeps` release by default. Pass
-`--version <tag>` when a reproducible dependency snapshot is required.
+The root helper follows the MaaFramework pattern: it downloads a pinned
+published `MpaDeps` release into `MpaUtils/MpaDeps` by default. For manual tag
+selection, call `source/MpaUtils/tools/mpadeps-download.py --version <tag>`.
 
 For local release-asset validation:
 
 ```powershell
-python tools/mpadeps-download.py --from-dir ..\MpaDeps\tarball
+python source/MpaUtils/tools/mpadeps-download.py --from-dir ..\MpaDeps\tarball
 ```
 
 The example above assumes `MpaUtils` and `MpaDeps` are sibling checkouts.
 
 ## Local Helper
 
-`tools/mpadeps-download.py` in this repository is a standalone bootstrap
-helper. By default it extracts release assets into `MpaUtils/MpaDeps`.
+`tools/mpadeps-download.py` in this repository is a thin bootstrap wrapper.
+The reusable implementation lives under `source/MpaUtils/tools/`.
