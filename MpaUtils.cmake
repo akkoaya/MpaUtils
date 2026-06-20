@@ -70,7 +70,7 @@ include(${MPAUTILS_DIR}/cmake/version.cmake)
 
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
 find_package(Boost REQUIRED CONFIG COMPONENTS system regex)
-find_package(ZLIB REQUIRED CONFIG)
+find_package(ZLIB REQUIRED)
 find_package(fastdeploy_ppocr REQUIRED)
 find_package(ONNXRuntime REQUIRED)
 

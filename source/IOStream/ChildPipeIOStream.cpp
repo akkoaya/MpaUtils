@@ -6,10 +6,10 @@
 MAA_NS_BEGIN
 
 #ifdef _WIN32
-struct prevent_inherit : boost::process::v1::extend::handler
+struct prevent_inherit : boost::process::extend::handler
 {
     template <typename Char, typename Sequence>
-    void on_setup(boost::process::v1::extend::windows_executor<Char, Sequence>& exec)
+    void on_setup(boost::process::extend::windows_executor<Char, Sequence>& exec)
     {
         SIZE_T size = 0;
         InitializeProcThreadAttributeList(NULL, 1, 0, &size);
@@ -21,7 +21,7 @@ struct prevent_inherit : boost::process::v1::extend::handler
     }
 
     template <typename Char, typename Sequence>
-    void on_error(boost::process::v1::extend::windows_executor<Char, Sequence>& exec, const std::error_code&) const
+    void on_error(boost::process::extend::windows_executor<Char, Sequence>& exec, const std::error_code&) const
     {
         if (exec.startup_info_ex.lpAttributeList) {
             HeapFree(GetProcessHeap(), 0, exec.startup_info_ex.lpAttributeList);
@@ -29,7 +29,7 @@ struct prevent_inherit : boost::process::v1::extend::handler
     }
 
     template <typename Char, typename Sequence>
-    void on_success(boost::process::v1::extend::windows_executor<Char, Sequence>& exec) const
+    void on_success(boost::process::extend::windows_executor<Char, Sequence>& exec) const
     {
         if (exec.startup_info_ex.lpAttributeList) {
             HeapFree(GetProcessHeap(), 0, exec.startup_info_ex.lpAttributeList);
@@ -70,14 +70,14 @@ ChildPipeIOStream::ChildPipeIOStream(const std::filesystem::path& exec, const st
     , child_(
           exec_,
           args_,
-          boost::process::v1::std_out > pin_,
-          boost::process::v1::std_err > boost::process::v1::null,
-          boost::process::v1::std_in < pout_,
-          boost::process::v1::start_dir = exec_.parent_path()
+          boost::process::std_out > pin_,
+          boost::process::std_err > boost::process::null,
+          boost::process::std_in < pout_,
+          boost::process::start_dir = exec_.parent_path()
 #ifdef _WIN32
               ,
           prevent_inherit(),
-          boost::process::v1::windows::create_no_window
+          boost::process::windows::create_no_window
 #endif
       )
 {
