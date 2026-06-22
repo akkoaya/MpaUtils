@@ -15,7 +15,7 @@ target_include_directories(MpaUtils
 target_link_libraries(MpaUtils PRIVATE Boost::regex Boost::system ${OpenCV_LIBS})
 
 if(WIN32)
-    target_link_libraries(MpaUtils PRIVATE d3d12 dxgi Cfgmgr32)
+    target_link_libraries(MpaUtils PRIVATE d3d12 dxgi Cfgmgr32 bcrypt user32 gdi32)
 endif()
 
 if(LINUX)
@@ -23,6 +23,9 @@ if(LINUX)
 endif()
 
 target_compile_definitions(MpaUtils PRIVATE MAA_UTILS_EXPORTS)
-set_target_properties(MpaUtils PROPERTIES OUTPUT_NAME MpaUtils)
+set_target_properties(MpaUtils PROPERTIES
+    OUTPUT_NAME MpaUtils
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${mpa_utils_src})
