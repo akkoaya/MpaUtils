@@ -12,6 +12,7 @@ endif()
 if(MSVC)
     add_compile_options("/utf-8")
     add_compile_options("/MP")
+    add_compile_options("/EHsc")
     add_compile_options("/W4;/WX;/Gy;/permissive-;/sdl")
     add_compile_options("/wd4127") # conditional expression is constant
     add_compile_options("/wd4251") # export dll with templates
