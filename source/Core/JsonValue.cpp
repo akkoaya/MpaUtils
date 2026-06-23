@@ -2,11 +2,55 @@
 
 #include <cmath>
 #include <cctype>
+#include <cstdint>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
 
 namespace mpa {
+
+namespace {
+
+int HexValue(char ch) {
+    if (ch >= '0' && ch <= '9') {
+        return ch - '0';
+    }
+    if (ch >= 'a' && ch <= 'f') {
+        return 10 + ch - 'a';
+    }
+    if (ch >= 'A' && ch <= 'F') {
+        return 10 + ch - 'A';
+    }
+    return -1;
+}
+
+void AppendUtf8(std::string& out, std::uint32_t codepoint) {
+    if (codepoint <= 0x7FU) {
+        out.push_back(static_cast<char>(codepoint));
+        return;
+    }
+    if (codepoint <= 0x7FFU) {
+        out.push_back(static_cast<char>(0xC0U | (codepoint >> 6U)));
+        out.push_back(static_cast<char>(0x80U | (codepoint & 0x3FU)));
+        return;
+    }
+    if (codepoint <= 0xFFFFU) {
+        out.push_back(static_cast<char>(0xE0U | (codepoint >> 12U)));
+        out.push_back(static_cast<char>(0x80U | ((codepoint >> 6U) & 0x3FU)));
+        out.push_back(static_cast<char>(0x80U | (codepoint & 0x3FU)));
+        return;
+    }
+    if (codepoint <= 0x10FFFFU) {
+        out.push_back(static_cast<char>(0xF0U | (codepoint >> 18U)));
+        out.push_back(static_cast<char>(0x80U | ((codepoint >> 12U) & 0x3FU)));
+        out.push_back(static_cast<char>(0x80U | ((codepoint >> 6U) & 0x3FU)));
+        out.push_back(static_cast<char>(0x80U | (codepoint & 0x3FU)));
+        return;
+    }
+    throw std::runtime_error("invalid unicode escape");
+}
+
+}  // namespace
 
 bool JsonValue::IsObject() const { return std::holds_alternative<Object>(storage); }
 bool JsonValue::IsArray() const { return std::holds_alternative<Array>(storage); }
@@ -139,6 +183,18 @@ JsonValue JsonParser::ParseArray() {
 
 std::string JsonParser::ParseString() {
     Expect('"');
+    auto consume_unicode_escape = [this]() -> std::uint32_t {
+        std::uint32_t codepoint = 0;
+        for (int index = 0; index < 4; ++index) {
+            const auto digit = HexValue(Consume());
+            if (digit < 0) {
+                throw std::runtime_error("invalid unicode escape");
+            }
+            codepoint = (codepoint << 4U) | static_cast<std::uint32_t>(digit);
+        }
+        return codepoint;
+    };
+
     std::string result;
     while (true) {
         const auto ch = Consume();
@@ -168,6 +224,25 @@ std::string JsonParser::ParseString() {
                 case 't':
                     result.push_back('\t');
                     break;
+                case 'u': {
+                    auto codepoint = consume_unicode_escape();
+                    if (codepoint >= 0xD800U && codepoint <= 0xDBFFU) {
+                        if (Consume() != '\\' || Consume() != 'u') {
+                            throw std::runtime_error("invalid unicode surrogate pair");
+                        }
+                        const auto low = consume_unicode_escape();
+                        if (low < 0xDC00U || low > 0xDFFFU) {
+                            throw std::runtime_error("invalid unicode surrogate pair");
+                        }
+                        codepoint =
+                            0x10000U +
+                            (((codepoint - 0xD800U) << 10U) | (low - 0xDC00U));
+                    } else if (codepoint >= 0xDC00U && codepoint <= 0xDFFFU) {
+                        throw std::runtime_error("invalid unicode surrogate pair");
+                    }
+                    AppendUtf8(result, codepoint);
+                    break;
+                }
                 default:
                     throw std::runtime_error("unsupported escape sequence");
             }
