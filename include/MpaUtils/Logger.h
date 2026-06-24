@@ -8,8 +8,8 @@ MAA_LOG_NS_BEGIN
 class MAA_UTILS_API Logger
 {
 public:
-    static constexpr std::string_view kLogFilename = "maafw.log";
-    static constexpr std::string_view kLogbakFilename = "maafw.bak.{}.log";
+    static constexpr std::string_view kLogFilename = "mpafw.log";
+    static constexpr std::string_view kLogbakFilename = "mpafw.bak.{}.log";
 
 public:
     static Logger& get_instance();
