@@ -3,8 +3,8 @@
 `MpaUtils` is the shared utility library and dependency bridge used by
 `MpaFrameWork`.
 
-It mirrors the role of `MaaUtils` in `MaaFramework`, but is wired for the
-project-owned `MpaDeps` release-download flow.
+It is wired for the project-owned `MpaDeps` release-download flow and provides
+the shared utility/runtime bridge for this repository.
 
 ## Responsibilities
 
@@ -38,9 +38,9 @@ Bootstrap `MpaDeps` into the `MpaUtils` checkout with:
 python tools/mpadeps-download.py
 ```
 
-The root helper follows the MaaFramework pattern: it downloads a pinned
-published `MpaDeps` release into `MpaUtils/MpaDeps` by default. For manual tag
-selection, call `source/MpaUtils/tools/mpadeps-download.py --version <tag>`.
+The root helper downloads a pinned published `MpaDeps` release into
+`MpaUtils/MpaDeps` by default. For manual tag selection, call
+`source/MpaUtils/tools/mpadeps-download.py --version <tag>`.
 
 For local release-asset validation:
 
