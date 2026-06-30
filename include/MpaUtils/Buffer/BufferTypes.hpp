@@ -6,10 +6,10 @@
 
 #include "MpaUtils/NoWarningCVMat.hpp"
 
-struct MaaStringBuffer
+struct MpaStringBuffer
 {
 public:
-    virtual ~MaaStringBuffer() = default;
+    virtual ~MpaStringBuffer() = default;
 
     virtual bool empty() const = 0;
     virtual void clear() = 0;
@@ -24,10 +24,10 @@ public:
 
 using ImageEncodedBuffer = std::vector<uint8_t>;
 
-struct MaaImageBuffer
+struct MpaImageBuffer
 {
 public:
-    virtual ~MaaImageBuffer() = default;
+    virtual ~MpaImageBuffer() = default;
 
     virtual bool empty() const = 0;
     virtual void clear() = 0;

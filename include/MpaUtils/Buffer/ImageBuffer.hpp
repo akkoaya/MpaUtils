@@ -7,7 +7,7 @@
 
 MAA_NS_BEGIN
 
-class ImageBuffer : public MaaImageBuffer
+class ImageBuffer : public MpaImageBuffer
 {
 public:
     ImageBuffer() = default;
@@ -123,7 +123,7 @@ private:
 
 MAA_NS_END
 
-struct MaaImageListBuffer : public MAA_NS::ListBuffer<MAA_NS::ImageBuffer>
+struct MpaImageListBuffer : public MAA_NS::ListBuffer<MAA_NS::ImageBuffer>
 {
-    virtual ~MaaImageListBuffer() override = default;
+    virtual ~MpaImageListBuffer() override = default;
 };

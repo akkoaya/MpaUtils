@@ -6,7 +6,7 @@
 
 MAA_NS_BEGIN
 
-class StringBuffer : public MaaStringBuffer
+class StringBuffer : public MpaStringBuffer
 {
 public:
     StringBuffer() = default;
@@ -36,7 +36,7 @@ private:
 
 MAA_NS_END
 
-struct MaaStringListBuffer : public MAA_NS::ListBuffer<MAA_NS::StringBuffer>
+struct MpaStringListBuffer : public MAA_NS::ListBuffer<MAA_NS::StringBuffer>
 {
-    virtual ~MaaStringListBuffer() override = default;
+    virtual ~MpaStringListBuffer() override = default;
 };
